@@ -4,21 +4,37 @@ services:
   node:
     build: .
     restart: unless-stopped
+    networks:
+      app_net:
+        ipv4_address: 10.10.10.20
+    container_name: app_forum
+    ports:
+    - "8001:4567"
     depends_on:
       - db
     expose:
       - 4567 # use a reverse proxy like Traefik
-
   db:
     image: mongo:bionic
     restart: unless-stopped
+    networks:
+      app_net:
+        ipv4_address: 10.10.10.10
+    container_name: db_forum
+    ports:
+    - "27018:27017"
     expose:
       - 27017
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: root
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: MQ@123456
+      MONGO_INITDB_DATABASE: db_forum
     volumes:
-      - mongo:/data/db
-
-volumes:
-  mongo:
+      - ./docker/mongodb:/data/db
+      - ./docker/initdb/db.js:/docker-entrypoint-initdb.d/db.js:ro
+networks:
+  app_net:
+    ipam:
+      driver: default
+      config:
+        - subnet: "10.10.10.0/24"

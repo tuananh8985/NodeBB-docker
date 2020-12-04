@@ -1,3 +1,5 @@
+/docker/initdb/db.js
+/docker/mongodb/
 dist/
 yarn.lock
 npm-debug.log
